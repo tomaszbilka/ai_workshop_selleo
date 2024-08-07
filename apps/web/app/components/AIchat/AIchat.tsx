@@ -2,13 +2,20 @@ import { useState } from "react";
 
 export default function AIchat() {
   const [state, setState] = useState("");
-  const handleSubmit = () => {
-    console.log(state);
-    fetch("http://localhost:3000", {
-      method: "POST",
-      body: JSON.stringify(state),
-    }).then(() => console.log("sent: ", state));
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/aichat", {
+        method: "POST",
+        body: JSON.stringify({ query: state }),
+      });
+
+      const json = await response.json();
+      console.log(json);
+    } catch (err) {
+      console.error(err);
+    }
   };
+
   return (
     <div className="w-full flex justify-center items-center p-5 gap-2">
       <input

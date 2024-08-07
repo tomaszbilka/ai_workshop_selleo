@@ -9,6 +9,7 @@ import {
 } from "~/components/ui/navigation-menu";
 import { useLandingStore } from "./landingStore";
 import ThemeToggle from "~/components/ThemeToggle/ThemeToggle";
+import AIchat from "~/components/AIchat/AIchat";
 
 export default function LandingLayout() {
   const setIsSheetOpen = useLandingStore((state) => state.setIsSheetOpen);
@@ -47,8 +48,8 @@ export default function LandingLayout() {
           </NavigationMenuList>
         </NavigationMenu>
       </div>
-
       <Outlet />
+      <AIchat />
     </main>
   );
 }

@@ -7,6 +7,9 @@ export default function AIchat() {
       const response = await fetch("http://localhost:3000/aichat", {
         method: "POST",
         body: JSON.stringify({ query: state }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       const json = await response.json();

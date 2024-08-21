@@ -1,7 +1,9 @@
 import { useState } from "react";
 
 export default function AIchat() {
-  const [state, setState] = useState("");
+  const [state, setState] = useState(
+    "Woda leci mi spod lodówki. Co mam zrobić?"
+  );
   const handleSubmit = async () => {
     setState("");
     try {

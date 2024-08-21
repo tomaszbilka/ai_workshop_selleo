@@ -4,6 +4,6 @@ import { Injectable } from "@nestjs/common";
 export class AichatService {
   getAiResponse = async (query: string) => {
     console.log({ query });
-    return "hehe";
+    return JSON.stringify(query);
   };
 } // TODO: connect to openai

@@ -47,6 +47,7 @@ export default function AIchat() {
           Submit
         </button>
       </div>
+      {isLoading && <p className="text-white">Thinking...</p>}
       {data &&
         data?.map((el: string) => (
           <p key={el} className="text-white">

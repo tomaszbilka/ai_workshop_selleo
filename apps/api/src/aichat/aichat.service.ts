@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import OpenAI from "openai";
-import { technicians } from "./constants";
+import { availability, technicians } from "./constants";
 
 @Injectable()
 export class AichatService {
@@ -21,6 +21,10 @@ export class AichatService {
     Jeśli żadna osoba nie spełnia kryteriów, koniecznie odpowiedz: "Nie znalazłem odpowiedniego specjalisty."
     Uwaga: Jeśli nie ma odpowiedniego specjalisty, musisz wyraźnie to zaznaczyć w odpowiedzi.`;
 
+  private getTechinicianAvailabilityPropmt = (id: string) => {
+    return `Oto lista techników wrasz z ich dostępnościami: ${JSON.stringify(availability)}. Znajdź technika o technicianId równym ${id} i zwróc wartości i klucze w tablicy, np: id=<tutaj podaj id>`;
+  };
+
   private fetchAiResponse = async (prompt: string): Promise<string[]> => {
     const chatCompletion = await this.client.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
@@ -33,6 +37,17 @@ export class AichatService {
     const prompt = this.createPropmt(query);
     const response = await this.fetchAiResponse(prompt);
 
-    return JSON.stringify(response);
+    if (response[0] === "Nie znalazłem odpowiedniego specjalisty.") {
+      return JSON.stringify({ availability: null, response });
+    }
+
+    const technicianId = response[0].substring(3);
+
+    const availabilityPrompt =
+      this.getTechinicianAvailabilityPropmt(technicianId);
+
+    const availability = await this.fetchAiResponse(availabilityPrompt);
+
+    return JSON.stringify({ availability, response });
   };
 }

@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AIchat() {
   const [state, setState] = useState(
     "Woda leci mi spod lodówki. Co mam zrobić?"
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState<string[] | null>(null);
+  const [data, setData] = useState<{
+    response: string[];
+    availability: string[];
+  } | null>({ response: [], availability: [""] });
 
   const handleSubmit = async () => {
     setState("");
@@ -49,7 +52,7 @@ export default function AIchat() {
       </div>
       {isLoading && <p className="text-white">Thinking...</p>}
       {data &&
-        data?.map((el: string) => (
+        data?.response?.map((el: string) => (
           <p key={el} className="text-white">
             {el}
           </p>

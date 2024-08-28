@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function AIchat() {
   const [state, setState] = useState(
@@ -57,6 +57,24 @@ export default function AIchat() {
             {el}
           </p>
         ))}
+      {data?.availability?.[0]
+        ?.split(",")
+        .slice(2)
+        .map((el: string, index: number) => {
+          if (index === 0 || index === 1) {
+            return (
+              <p key={el}>
+                {new Date(el.split("=")[1]).toLocaleDateString("en-GB", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+            );
+          }
+          if (index === 2) return <p key={el}>{el.split("=")[1]}</p>;
+          if (index === 3) return <p key={el}>{el.split("=")[1]}</p>;
+          return el;
+        })}
     </div>
   );
 }

@@ -36,8 +36,7 @@ export class AichatService {
   getAiResponse = async (query: string) => {
     const prompt = this.createPropmt(query);
     const response = await this.fetchAiResponse(prompt);
-
-    if (response[0] === "Nie znalazłem odpowiedniego specjalisty.") {
+    if (response.length === 1) {
       return JSON.stringify({ availability: null, response });
     }
 

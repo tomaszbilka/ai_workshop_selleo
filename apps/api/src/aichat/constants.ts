@@ -5,11 +5,6 @@ export const technicians = [
     skills: ["plumbing", "electrical", "carpentry"],
   },
   {
-    id: "3f8d7b1c-2c8d-4b8d-9c8d-7b8d2c8d4b8r",
-    name: "John Balboa",
-    skills: ["roofing", "carpentry"],
-  },
-  {
     id: "8d7b8d2c-8d4b8d-9c8d-7b8d-2c8d4b8d9c8d",
     name: "Sarah Johnson",
     skills: ["hvac", "refrigeration"],

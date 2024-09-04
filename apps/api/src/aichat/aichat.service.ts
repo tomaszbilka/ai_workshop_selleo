@@ -3,15 +3,46 @@ import { DatabasePg } from "src/common";
 import { Inject, Injectable } from "@nestjs/common";
 import OpenAI from "openai";
 import { technicians } from "src/storage/schema";
+import { eq } from "drizzle-orm";
 
 @Injectable()
 export class AichatService {
   private client: OpenAI;
 
+  private generateEmbedding = async (value: string): Promise<number[]> => {
+    const input = value.replaceAll("\n", " ");
+    const { data } = await this.client.embeddings.create({
+      model: "text-embedding-ada-002",
+      input,
+    });
+    return data[0].embedding;
+  };
+
+  private createEmbeddings = async () => {
+    const allTechnicians = await this.db.select().from(technicians);
+
+    if (!allTechnicians[0].embedding) {
+      allTechnicians.map(async (technician) => {
+        const embedding = await this.generateEmbedding(
+          technician.skills?.join(","),
+        );
+
+        await this.db
+          .update(technicians)
+          .set({ embedding })
+          .where(eq(technicians.id, technician.id));
+
+        console.log("generated embedding for technicians skills");
+      });
+    }
+  };
+
   constructor(@Inject("DB") private readonly db: DatabasePg) {
     this.client = new OpenAI({
       apiKey: process.env.OPENAI_KEY,
     });
+
+    this.createEmbeddings();
   }
 
   private createPropmt = (

@@ -1,4 +1,4 @@
-import { pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, uuid, vector, index } from "drizzle-orm/pg-core";
 import { id, timestamps } from "./utils";
 
 export const users = pgTable("users", {
@@ -16,9 +16,19 @@ export const credentials = pgTable("credentials", {
   password: text("password").notNull(),
 });
 
-export const technicians = pgTable("technicians", {
-  ...id,
-  ...timestamps,
-  name: text("name").notNull(),
-  skills: text("skills").array().notNull(),
-});
+export const technicians = pgTable(
+  "technicians",
+  {
+    ...id,
+    ...timestamps,
+    name: text("name").notNull(),
+    skills: text("skills").array().notNull(),
+    embedding: vector("embedding", { dimensions: 1536 }),
+  },
+  (table) => ({
+    embeddingIndex: index("embeddingIndex").using(
+      "hnsw",
+      table.embedding.op("vector_cosine_ops"),
+    ),
+  }),
+);

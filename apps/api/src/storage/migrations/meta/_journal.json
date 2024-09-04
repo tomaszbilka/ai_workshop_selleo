@@ -36,6 +36,13 @@
       "when": 1725452497732,
       "tag": "0004_add_technicians_table",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1725461162180,
+      "tag": "0005_create_embedding_in_technicians",
+      "breakpoints": true
     }
   ]
 }

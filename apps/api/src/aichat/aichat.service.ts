@@ -45,8 +45,8 @@ export class AichatService {
   }
 
   private createPropmt = (query: string): string => `Problem: ${query}
-  
-   Based on the prompt with problem definition return one crucial neccessary skill required to solve and fix the reason of the problem and format it as a json object with key named skill, keep it as a one word.
+
+   Based on the prompt with problem definition return one crucial necessary skill required to solve and fix the reason of the problem and format it as a json object with key named skill, keep it as a one word. If you haven't found any person with matching skills, return null.
 `;
 
   private fetchAiResponse = async (prompt: string): Promise<string[]> => {
@@ -78,8 +78,6 @@ export class AichatService {
       .orderBy((t) => desc(t.similarity))
       .limit(4);
 
-    console.log({ similarGuides });
-
-    return JSON.stringify({ response });
+    return JSON.stringify({ response: similarGuides[0] });
   };
 }

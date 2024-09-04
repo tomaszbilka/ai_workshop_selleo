@@ -6,9 +6,8 @@ export default function AIchat() {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<{
-    response: string[];
-    availability: string[];
-  } | null>({ response: [], availability: [""] });
+    response: { name: string };
+  } | null>({ response: { name: "" } });
 
   const handleSubmit = async () => {
     setState("");
@@ -30,7 +29,7 @@ export default function AIchat() {
       setIsLoading(false);
     }
   };
-
+  console.log(data);
   return (
     <div className="w-full flex flex-col justify-center items-center p-5">
       <div className="min-w-[400px] flex flex-col justify-center items-center p-5 gap-2">
@@ -51,30 +50,7 @@ export default function AIchat() {
         </button>
       </div>
       {isLoading && <p className="text-white">Thinking...</p>}
-      {data &&
-        data?.response?.map((el: string) => (
-          <p key={el} className="text-white">
-            {el}
-          </p>
-        ))}
-      {data?.availability?.[0]
-        ?.split(",")
-        .slice(2)
-        .map((el: string, index: number) => {
-          if (index === 0 || index === 1) {
-            return (
-              <p key={el}>
-                {new Date(el.split("=")[1]).toLocaleDateString("en-GB", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-            );
-          }
-          if (index === 2) return <p key={el}>{el.split("=")[1]}</p>;
-          if (index === 3) return <p key={el}>{el.split("=")[1]}</p>;
-          return el;
-        })}
+      {data && <p>{data?.response.name}</p>}
     </div>
   );
 }

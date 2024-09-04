@@ -1,9 +1,8 @@
-import { availability } from "./constants";
 import { DatabasePg } from "src/common";
 import { Inject, Injectable } from "@nestjs/common";
 import OpenAI from "openai";
 import { technicians } from "src/storage/schema";
-import { eq } from "drizzle-orm";
+import { cosineDistance, desc, eq, gt, sql } from "drizzle-orm";
 
 @Injectable()
 export class AichatService {
@@ -45,21 +44,10 @@ export class AichatService {
     this.createEmbeddings();
   }
 
-  private createPropmt = (
-    query: string,
-    techniciansData: any,
-  ): string => `Problem: ${query}
-    Lista specjalistów: ${JSON.stringify(techniciansData)}
-
-    Twoim zadaniem jest zidentyfikowanie specjalisty, którego umiejętności są najbardziej odpowiednie do rozwiązania podanego problemu.
-
-    Jeśli taka osoba istnieje, zwróć wynik w formacie: ID=<tutaj wstaw id>; Imię i Nazwisko; Opis, jak i dlaczego ta osoba może rozwiązać wskazany problem.
-    Jeśli żadna osoba nie spełnia kryteriów, koniecznie odpowiedz: "Nie znalazłem odpowiedniego specjalisty."
-    Uwaga: Jeśli nie ma odpowiedniego specjalisty, musisz wyraźnie to zaznaczyć w odpowiedzi.`;
-
-  private getTechinicianAvailabilityPropmt = (id: string) => {
-    return `Oto lista techników wrasz z ich dostępnościami: ${JSON.stringify(availability)}. Znajdź technika o technicianId równym ${id} i zwróc wartości i klucze w tablicy, np: id=<tutaj podaj id>`;
-  };
+  private createPropmt = (query: string): string => `Problem: ${query}
+  
+   Based on the prompt with problem definition return one crucial neccessary skill required to solve and fix the reason of the problem and format it as a json object with key named skill, keep it as a one word.
+`;
 
   private fetchAiResponse = async (prompt: string): Promise<string[]> => {
     const chatCompletion = await this.client.chat.completions.create({
@@ -70,21 +58,28 @@ export class AichatService {
   };
 
   getAiResponse = async (query: string) => {
-    const techniciansFromDB = await this.db.select().from(technicians);
-
-    const prompt = this.createPropmt(query, techniciansFromDB);
+    const prompt = this.createPropmt(query);
     const response = await this.fetchAiResponse(prompt);
-    if (response.length === 1) {
-      return JSON.stringify({ availability: null, response });
-    }
+    const skill = JSON.parse(response[0]).skill;
 
-    const technicianId = response[0].substring(3);
+    const embedding = await this.generateEmbedding(skill);
 
-    const availabilityPrompt =
-      this.getTechinicianAvailabilityPropmt(technicianId);
+    const similarity = sql<number>`1 - (${cosineDistance(technicians.embedding, embedding)})`;
 
-    const availability = await this.fetchAiResponse(availabilityPrompt);
+    const similarGuides = await this.db
+      .select({
+        id: technicians.id,
+        name: technicians.name,
+        skills: technicians.skills,
+        similarity,
+      })
+      .from(technicians)
+      .where(gt(similarity, 0.5))
+      .orderBy((t) => desc(t.similarity))
+      .limit(4);
 
-    return JSON.stringify({ availability, response });
+    console.log({ similarGuides });
+
+    return JSON.stringify({ response });
   };
 }

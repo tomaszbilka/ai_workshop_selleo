@@ -15,3 +15,10 @@ export const credentials = pgTable("credentials", {
     .notNull(),
   password: text("password").notNull(),
 });
+
+export const technicians = pgTable("technicians", {
+  ...id,
+  ...timestamps,
+  name: text("name").notNull(),
+  skills: text("skills").array().notNull(),
+});

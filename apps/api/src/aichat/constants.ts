@@ -212,3 +212,20 @@ export const availability = [
     currencyCode: "USD",
   },
 ];
+
+//sql query
+/*
+INSERT INTO 
+  technicians (name, skills) 
+  VALUES 
+('John Smith', '{plumbing,electrical,carpentry}'),
+('Sarah Johnson', '{hvac,refrigeration}'),
+('Michael Brown', '{plumbing,leak repair,pipe fitting}'),
+('Emily Davis', '{electrical,wiring,circuit repair}'),
+('David Wilson', '{carpentry,drywall repair,painting}'),
+('Jessica Thompson', '{hvac,air conditioning,ventilation}'),
+('Christopher Lee', '{plumbing,water heater installation}'),
+('Amanda Harris', '{electrical,lighting installation}'),
+('Matthew Martin', '{carpentry,flooring installation,cabinet making}'),
+('Olivia Anderson', '{hvac,heating systems,boiler repair}');
+*/

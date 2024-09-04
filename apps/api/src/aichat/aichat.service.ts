@@ -1,19 +1,24 @@
-import { Injectable } from "@nestjs/common";
+import { availability } from "./constants";
+import { DatabasePg } from "src/common";
+import { Inject, Injectable } from "@nestjs/common";
 import OpenAI from "openai";
-import { availability, technicians } from "./constants";
+import { technicians } from "src/storage/schema";
 
 @Injectable()
 export class AichatService {
   private client: OpenAI;
 
-  constructor() {
+  constructor(@Inject("DB") private readonly db: DatabasePg) {
     this.client = new OpenAI({
       apiKey: process.env.OPENAI_KEY,
     });
   }
 
-  private createPropmt = (query: string): string => `Problem: ${query}
-    Lista specjalistów: ${JSON.stringify(technicians)}
+  private createPropmt = (
+    query: string,
+    techniciansData: any,
+  ): string => `Problem: ${query}
+    Lista specjalistów: ${JSON.stringify(techniciansData)}
 
     Twoim zadaniem jest zidentyfikowanie specjalisty, którego umiejętności są najbardziej odpowiednie do rozwiązania podanego problemu.
 
@@ -34,7 +39,9 @@ export class AichatService {
   };
 
   getAiResponse = async (query: string) => {
-    const prompt = this.createPropmt(query);
+    const techniciansFromDB = await this.db.select().from(technicians);
+
+    const prompt = this.createPropmt(query, techniciansFromDB);
     const response = await this.fetchAiResponse(prompt);
     if (response.length === 1) {
       return JSON.stringify({ availability: null, response });
